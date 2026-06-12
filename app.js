@@ -1,6 +1,6 @@
-const API_URL =
-  "http://localhost/lab-activity-10-lewshubei/mycampus-cafe-slim-api/public/api";
-const API_BASE = API_URL;
+// Read the centralized API URL directly from your api.js file
+const API_BASE = API_BASE_URL;
+
 const app = Vue.createApp({
   data() {
     return {
@@ -31,30 +31,36 @@ const app = Vue.createApp({
         .then((response) => response.json())
         .then((data) => {
           this.menuItems = Array.isArray(data) ? data : [];
-        });
+        })
+        .catch((error) => console.error("Fetch menu error:", error));
     },
     loginStaff() {
-      fetch(API_BASE_URL + "/login", {
+      // Use the uniform API_BASE constant consistently
+      fetch(API_BASE + "/login", {
         method: "POST",
-        headers: publicHeaders(),
+        headers: publicHeaders(), // References publicHeaders() utility from api.js
         body: JSON.stringify({
-          username: this.username,
-          password: this.password,
+          // Map to your nested loginForm data properties correctly
+          username: this.loginForm.username,
+          password: this.loginForm.password,
         }),
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.token) {
-            localStorage.setItem("mcafe_token", data.token);
-            this.isLoggedIn = true;
-            alert("Login successful");
+            this.token = data.token; // Dynamically track state inside application variables
+            localStorage.setItem("mcafe_token", data.token); // Store token on client side[cite: 1]
+            this.activeView = "menu"; // Automatically redirect back to menu view[cite: 1]
+            alert("Login successful"); // Prompt login notification[cite: 1]
+            this.fetchMenu(); // Reload the data
           } else {
-            alert("Login failed");
+            alert("Login failed"); // Prompt login alternative notification[cite: 1]
           }
         })
         .catch((error) => console.error("Login error:", error));
     },
     authHeaders() {
+      // Explicit blank space spacing fixes JWT parsing middleware rejections[cite: 1]
       return {
         "Content-Type": "application/json",
         Authorization: "Bearer " + this.token,
@@ -62,8 +68,7 @@ const app = Vue.createApp({
     },
     logout() {
       this.token = "";
-      localStorage.removeItem("mcafe_token");
-      this.isLoggedIn = false;
+      localStorage.removeItem("mcafe_token"); // Evict tokens on client logout request[cite: 1]
       this.loginForm = { username: "", password: "" };
       this.activeView = "menu";
       this.resetForm();
@@ -100,25 +105,27 @@ const app = Vue.createApp({
         return;
       }
 
-      const method = this.editingMenuId ? "PUT" : "POST";
+      const method = this.editingMenuId ? "PUT" : "POST"; // Match required action pattern[cite: 1]
       const url = this.editingMenuId
         ? `${API_BASE}/menu/${this.editingMenuId}`
         : `${API_BASE}/menu`;
 
       fetch(url, {
         method,
-        headers: this.authHeaders(),
+        headers: this.authHeaders(), // Include valid authorization credentials header block[cite: 1]
         body: JSON.stringify(this.newMenu),
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success") {
-            this.fetchMenu();
+            this.fetchMenu(); // Refresh content tables[cite: 1]
             this.resetForm();
+            alert("Menu item saved successfully");
             return;
           }
           alert(data.message || "Unable to save menu item");
-        });
+        })
+        .catch((error) => console.error("Save menu error:", error));
     },
     deleteMenu(id) {
       if (!this.isAuthenticated) {
@@ -127,11 +134,15 @@ const app = Vue.createApp({
       }
 
       fetch(`${API_BASE}/menu/${id}`, {
-        method: "DELETE",
-        headers: this.authHeaders(),
+        method: "DELETE", // Formulates target standard delete structure[cite: 1]
+        headers: this.authHeaders(), // Employs structural authentication verification payload[cite: 1]
       })
         .then((response) => response.json())
-        .then(() => this.fetchMenu());
+        .then(() => {
+          this.fetchMenu(); // Refresh content tables[cite: 1]
+          alert("Menu item deleted"); // Confirm update validation[cite: 1]
+        })
+        .catch((error) => console.error("Delete menu error:", error));
     },
   },
 });
