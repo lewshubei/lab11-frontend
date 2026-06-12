@@ -60,12 +60,13 @@ const app = Vue.createApp({
         .catch((error) => console.error("Login error:", error));
     },
     authHeaders() {
-      // FIX 2: Fallback securely directly to persistent local storage memory parameters
-      const currentToken =
-        this.token || localStorage.getItem("mcafe_token") || "";
+      // Always grab the actual token straight from browser storage memory
+      const activeToken = localStorage.getItem("mcafe_token") || "";
+
       return {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + currentToken,
+        // Make sure the space after Bearer is exactly like this
+        Authorization: "Bearer " + activeToken,
       };
     },
     logout() {
