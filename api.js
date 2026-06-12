@@ -2,7 +2,8 @@
 // Local development API
 // const API_BASE_URL = 'http://localhost/mycampus-cafe-slim-api/public/api';
 // Live backend API after deployment to cPanel/shared hosting
-const API_BASE_URL = "https://yourdomain.com/api";
+// Inside your api.js file
+const API_BASE_URL = "http://mycampus10.atwebpages.com/api";
 function getToken() {
   return localStorage.getItem("mcafe_token");
 }
