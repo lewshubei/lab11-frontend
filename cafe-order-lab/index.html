@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MyCampus Café SPA</title>
+    <!-- UPDATED: title reflects SPA version -->
+  </head>
+  <body>
+    <div id="app">
+      <div v-if="activeView === 'menu'" class="dashboard">
+        <div class="topbar">
+          <h2>MyCampus Cafe Menu</h2>
+          <div>
+            <button v-if="isAuthenticated" type="button" @click="logout">
+              Logout
+            </button>
+            <button v-else type="button" @click="goToLogin">Login</button>
+          </div>
+        </div>
+
+        <section v-if="isAuthenticated" class="admin-panel">
+          <form @submit.prevent="saveMenu">
+            <h3>{{ editingMenuId ? 'Update Menu Item' : 'Add Menu Item' }}</h3>
+            <input
+              v-model="newMenu.menu_name"
+              placeholder="Menu name"
+              required
+            />
+            <input v-model="newMenu.category" placeholder="Category" required />
+            <input
+              v-model="newMenu.price"
+              type="number"
+              step="0.01"
+              placeholder="Price"
+              required
+            />
+            <select v-model="newMenu.availability">
+              <option>Available</option>
+              <option>Unavailable</option>
+            </select>
+            <button type="submit">
+              {{ editingMenuId ? 'Update Menu' : 'Add Menu' }}
+            </button>
+            <button v-if="editingMenuId" type="button" @click="resetForm">
+              Cancel
+            </button>
+          </form>
+        </section>
+
+        <section>
+          <div v-for="item in menuItems" :key="item.menu_id" class="menu-card">
+            <h3>{{ item.menu_name }}</h3>
+            <p>Category: {{ item.category }}</p>
+            <p>Price: RM {{ item.price }}</p>
+            <p>Status: {{ item.availability }}</p>
+            <div v-if="isAuthenticated">
+              <button @click="editMenu(item)">Edit</button>
+              <button @click="deleteMenu(item.menu_id)">Delete</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div v-else-if="activeView === 'login'" class="auth-panel">
+        <h2>Staff Login</h2>
+        <form @submit.prevent="loginStaff">
+          <input v-model="loginForm.username" placeholder="Username" required />
+          <input
+            v-model="loginForm.password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <button type="button" @click="goToMenu">Back to menu</button>
+      </div>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="app.js"></script>
+  </body>
+</html>
