@@ -60,13 +60,13 @@ const app = Vue.createApp({
         .catch((error) => console.error("Login error:", error));
     },
     authHeaders() {
-      // Always grab the actual token straight from browser storage memory
       const activeToken = localStorage.getItem("mcafe_token") || "";
-
       return {
         "Content-Type": "application/json",
-        // Make sure the space after Bearer is exactly like this
+        // Keep this for standard compliance
         Authorization: "Bearer " + activeToken,
+        // Add this custom header because AwardSpace won't strip it out!
+        "X-Authorization": "Bearer " + activeToken,
       };
     },
     logout() {
